@@ -3,14 +3,23 @@ import 'package:test_application/pages/home/components/components.dart';
 
 class RowEmotionList extends StatefulWidget {
   final ValueChanged<bool> onEmotionSelected;
+  final bool isSave;
 
-  const RowEmotionList({super.key, required this.onEmotionSelected});
+  const RowEmotionList({super.key, required this.onEmotionSelected, required this.isSave});
 
   @override
   _RowEmotionListState createState() => _RowEmotionListState();
 }
 
 class _RowEmotionListState extends State<RowEmotionList> {
+  @override
+  void didUpdateWidget(covariant RowEmotionList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isSave != oldWidget.isSave) {
+      _resetSelections();
+    }
+  }
+
   final List<int> _selectedEmotionIndices = [];
   int? _lastSelectedEmotionIndex;
   final Map<int, Set<String>> selectedSubEmotions = {};
@@ -43,37 +52,52 @@ class _RowEmotionListState extends State<RowEmotionList> {
         ),
         const SizedBox(height: 20),
         if (_lastSelectedEmotionIndex != null)
-          VisibilityWrap(
-            isShow: true,
-            currentEmotion: _lastSelectedEmotionIndex!,
-            selectedSubEmotions: selectedSubEmotions[_lastSelectedEmotionIndex] ?? {},
-            onSubEmotionSelected: _onSubEmotionSelected,
+          Column(
+            children: [
+              VisibilityWrap(
+                isShow: true,
+                currentEmotion: _lastSelectedEmotionIndex!,
+                selectedSubEmotions: selectedSubEmotions[_lastSelectedEmotionIndex] ?? {},
+                onSubEmotionSelected: _onSubEmotionSelected,
+              ),
+              const SizedBox(height: 24)
+            ],
           ),
       ],
     );
   }
 
+  void _resetSelections() {
+    setState(() {
+      _selectedEmotionIndices.clear();
+      _lastSelectedEmotionIndex = null;
+      selectedSubEmotions.clear();
+    });
+  }
+
   void _onEmotionTapped(int index) {
     setState(() {
-      if (_selectedEmotionIndices.contains(index)) {
-        _selectedEmotionIndices.remove(index);
-        if (_lastSelectedEmotionIndex == index && _selectedEmotionIndices.isNotEmpty) {
-          _lastSelectedEmotionIndex = _selectedEmotionIndices.last;
-        } else if (_selectedEmotionIndices.isEmpty) {
-          _lastSelectedEmotionIndex = null;
-        }
+      if (widget.isSave) {
+        _resetSelections();
       } else {
-        _selectedEmotionIndices.add(index);
-        _lastSelectedEmotionIndex = index;
+        if (_selectedEmotionIndices.contains(index)) {
+          if (_lastSelectedEmotionIndex == index) {
+            _selectedEmotionIndices.remove(index);
+            selectedSubEmotions.remove(index);
+            _lastSelectedEmotionIndex = _selectedEmotionIndices.isNotEmpty ? _selectedEmotionIndices.last : null;
+          }
+        } else {
+          _selectedEmotionIndices.add(index);
+          _lastSelectedEmotionIndex = index;
+        }
+        widget.onEmotionSelected(_lastSelectedEmotionIndex != null);
       }
-      widget.onEmotionSelected(_lastSelectedEmotionIndex != null);
     });
   }
 
   void _onSubEmotionSelected(int emotionIndex, String subEmotion) {
     setState(() {
       selectedSubEmotions[emotionIndex] ??= {};
-
       if (selectedSubEmotions[emotionIndex]!.contains(subEmotion)) {
         selectedSubEmotions[emotionIndex]!.remove(subEmotion);
       } else {

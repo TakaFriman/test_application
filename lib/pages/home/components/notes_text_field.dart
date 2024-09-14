@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class NotesTextField extends StatefulWidget {
-  const NotesTextField({super.key, required this.onTextChange});
+  const NotesTextField({super.key, required this.onTextChange, required this.isSave});
 
   final ValueChanged<bool> onTextChange;
+  final bool isSave;
 
   @override
   _NotesTextFieldState createState() => _NotesTextFieldState();
@@ -22,21 +23,30 @@ class _NotesTextFieldState extends State<NotesTextField> {
   }
 
   @override
+  void didUpdateWidget(NotesTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isSave != oldWidget.isSave) {
+      if (widget.isSave) {
+        _clearTextField();
+      }
+    }
+  }
+
+  void _clearTextField() {
+    setState(() {
+      _controller.clear();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Заметки',
-            style: GoogleFonts.nunito(
-                textStyle: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: Color.fromRGBO(35, 35, 43, 1),
-            )),
-          ),
+          Text('Заметки', style: theme.textTheme.headlineLarge),
           const SizedBox(height: 20),
           Container(
             decoration: const BoxDecoration(
@@ -49,16 +59,12 @@ class _NotesTextFieldState extends State<NotesTextField> {
               ],
             ),
             child: TextField(
+              textInputAction: TextInputAction.done,
               controller: _controller,
               cursorColor: Colors.black,
-              style: GoogleFonts.nunito(
-                  textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: Color.fromRGBO(76, 76, 105, 1),
-              )),
+              style: theme.textTheme.bodyMedium,
               minLines: 4,
-              maxLines: 10,
+              maxLines: 8,
               decoration: InputDecoration(
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -72,12 +78,7 @@ class _NotesTextFieldState extends State<NotesTextField> {
                   borderSide: const BorderSide(color: Colors.white),
                 ),
                 hintText: 'Введите заметку',
-                hintStyle: GoogleFonts.nunito(
-                    textStyle: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: Color.fromRGBO(188, 188, 191, 1),
-                )),
+                hintStyle: theme.textTheme.labelSmall,
               ),
             ),
           ),

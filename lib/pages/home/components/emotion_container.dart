@@ -15,6 +15,7 @@ class EmotionContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 25),
       width: 95,
@@ -28,7 +29,7 @@ class EmotionContainer extends StatelessWidget {
             blurRadius: 10.8,
           ),
         ],
-        border: isSelected ? Border.all(color: const Color.fromRGBO(255, 135, 2, 1), width: 2) : null,
+        border: isSelected ? Border.all(color: theme.primaryColor, width: 2) : null,
       ),
       child: Column(
         children: [
@@ -36,13 +37,8 @@ class EmotionContainer extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             name,
-            style: GoogleFonts.nunito(
-              textStyle: const TextStyle(
-                color: Color.fromRGBO(76, 76, 105, 1),
-                fontSize: 11,
-                height: 1.36,
-                fontWeight: FontWeight.w400,
-              ),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: const Color.fromRGBO(76, 76, 105, 1),
             ),
           ),
         ],

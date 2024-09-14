@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:test_application/pages/calendar/calendar.dart';
 import 'package:test_application/pages/calendar/view/calendar_page.dart';
 import 'package:test_application/pages/home/components/components.dart';
+import 'package:test_application/pages/statistic/statistic.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,6 +20,8 @@ class _HomePageState extends State<HomePage> {
   String _currentDateTime = '';
   bool _isEmotionSelected = false;
   bool _isNotesTextFieldEmpty = true;
+  bool _isSave = false;
+  int _selectedIndex = 0; // Индекс выбранной вкладки
 
   void _updateDateTime() {
     setState(() {
@@ -41,6 +44,47 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  void _showSaveConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Успех'),
+          content: const Text('Ваши данные сохранены.'),
+          actions: [
+            TextButton(
+              child: const Text('ОК'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _resetAllFields() {
+    setState(() {
+      _isEmotionSelected = false;
+      _isNotesTextFieldEmpty = true;
+
+      _isSave = true;
+    });
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      setState(() {
+        _isSave = false;
+      });
+    });
+  }
+
+  void _onSavePressed() {
+    _isSave = true;
+    _showSaveConfirmationDialog();
+    _resetAllFields();
+  }
+
   void _onEmotionSelected(bool isSelected) {
     setState(() {
       _isEmotionSelected = isSelected;
@@ -53,12 +97,17 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _onTabChanged(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(255, 253, 252, 1),
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(255, 253, 252, 1),
         centerTitle: true,
         actions: [
           InkWell(
@@ -68,59 +117,65 @@ class _HomePageState extends State<HomePage> {
                   MaterialPageRoute(builder: (context) => const CalendarPage()),
                 );
               },
-              child: const Icon(
+              child: Icon(
                 Icons.calendar_month,
-                color: Color.fromRGBO(188, 188, 191, 1),
+                color: theme.disabledColor,
               )),
           const SizedBox(width: 20)
         ],
-        title: Text(_currentDateTime,
-            style: GoogleFonts.nunito(
-              textStyle: const TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 22,
-                color: Color.fromRGBO(188, 188, 191, 1),
-              ),
-            )),
+        title: Text(_currentDateTime, style: theme.textTheme.titleLarge),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 12),
-            const ToggleButtonHeading(),
-            const SizedBox(height: 30),
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Text(
-                'Что чувствуешь?',
-                style: GoogleFonts.nunito(
-                    textStyle: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: Color.fromRGBO(35, 35, 43, 1),
-                )),
-              ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 12),
+          ToggleButtonHeading(onTabChanged: _onTabChanged),
+          Expanded(
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 30),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Text('Что чувствуешь?', style: theme.textTheme.headlineLarge),
+                      ),
+                      const SizedBox(height: 20),
+                      RowEmotionList(onEmotionSelected: _onEmotionSelected, isSave: _isSave),
+                      const SizedBox(height: 10),
+                      BaseSlider(
+                        title: 'Уровень стресса',
+                        firstValue: 'Низкий',
+                        secondValue: 'Высокий',
+                        isEmotionSelected: _isEmotionSelected,
+                        isSave: _isSave,
+                      ),
+                      BaseSlider(
+                        title: 'Самооценка',
+                        firstValue: 'Неуверенность',
+                        secondValue: 'Уверенность',
+                        isEmotionSelected: _isEmotionSelected,
+                        isSave: _isSave,
+                      ),
+                      NotesTextField(onTextChange: _onNotesTextChanged, isSave: _isSave),
+                      const SizedBox(height: 36),
+                      SaveButton(
+                        isEmotionSelected: _isEmotionSelected,
+                        isNotesTextFieldNotEmpty: _isNotesTextFieldEmpty,
+                        onPressed: _onSavePressed,
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+                const StatisticPage(),
+              ],
             ),
-            const SizedBox(height: 20),
-            RowEmotionList(onEmotionSelected: _onEmotionSelected),
-            const SizedBox(height: 20),
-            BaseSlider(
-                title: 'Уровень стресса',
-                firstValue: 'Низкий',
-                secondValue: 'Высокий',
-                isEmotionSelected: _isEmotionSelected),
-            BaseSlider(
-                title: 'Самооценка',
-                firstValue: 'Неуверенность',
-                secondValue: 'Уверенность',
-                isEmotionSelected: _isEmotionSelected),
-            NotesTextField(onTextChange: _onNotesTextChanged),
-            const SizedBox(height: 36),
-            SaveButton(isEmotionSelected: _isEmotionSelected, isNotesTextFieldNotEmpty: _isNotesTextFieldEmpty),
-            const SizedBox(height: 24),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

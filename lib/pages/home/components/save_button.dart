@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 
 class SaveButton extends StatelessWidget {
-  const SaveButton({super.key, required this.isEmotionSelected, required this.isNotesTextFieldNotEmpty});
+  const SaveButton({
+    super.key,
+    required this.isEmotionSelected,
+    required this.isNotesTextFieldNotEmpty,
+    required this.onPressed,
+  });
 
   final bool isEmotionSelected;
   final bool isNotesTextFieldNotEmpty;
+  final VoidCallback onPressed;
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     bool isTrue = false;
     isEmotionSelected && !isNotesTextFieldNotEmpty ? isTrue = true : isTrue = false;
     return Padding(
@@ -16,19 +24,19 @@ class SaveButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(69),
           ),
-          backgroundColor: const Color.fromRGBO(255, 135, 2, 1),
+          backgroundColor: theme.primaryColor,
           disabledBackgroundColor: const Color.fromRGBO(242, 242, 242, 1),
         ),
-        onPressed: isTrue ? () {} : null,
+        onPressed: isTrue ? onPressed : null,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 15),
           child: Center(
-              child: Text('Сохранить',
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: -0.5,
-                      color: isTrue ? Colors.white : const Color.fromRGBO(188, 188, 191, 1)))),
+              child: Text(
+            'Сохранить',
+            style: theme.textTheme.displayMedium?.copyWith(
+              color: isTrue ? Colors.white : theme.disabledColor,
+            ),
+          )),
         ),
       ),
     );

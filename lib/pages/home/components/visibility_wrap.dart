@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class VisibilityWrap extends StatelessWidget {
   VisibilityWrap({
@@ -60,7 +61,6 @@ class VisibilityWrap extends StatelessWidget {
       'Тоска',
       'Скука',
       'Тревога',
-      'Печаль',
       'Меланхолия',
     ],
     4: [
@@ -123,6 +123,7 @@ class _WrapContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -137,13 +138,11 @@ class _WrapContainer extends StatelessWidget {
           ],
         ),
         child: Chip(
-          backgroundColor: isSelected ? const Color.fromRGBO(255, 135, 2, 1) : Colors.white,
-          side: BorderSide(color: isSelected ? const Color.fromRGBO(255, 135, 2, 1) : Colors.white),
+          backgroundColor: isSelected ? theme.primaryColor : Colors.white,
+          side: BorderSide(color: isSelected ? theme.primaryColor : Colors.white),
           label: Text(
             text,
-            style: TextStyle(
-              fontWeight: FontWeight.w400,
-              fontSize: 14,
+            style: theme.textTheme.bodySmall?.copyWith(
               color: isSelected ? Colors.white : const Color.fromRGBO(76, 76, 105, 1),
             ),
           ),

@@ -10,34 +10,48 @@ class BaseSlider extends StatefulWidget {
     required this.secondValue,
     required this.title,
     required this.isEmotionSelected,
+    required this.isSave,
   });
+
   final bool isEmotionSelected;
   final String firstValue;
   final String secondValue;
   final String title;
+  final bool isSave;
+
   @override
   State<BaseSlider> createState() => _BaseSliderState();
 }
 
 class _BaseSliderState extends State<BaseSlider> {
   double currentSliderValue = 2.5;
+
+  @override
+  void didUpdateWidget(BaseSlider oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isSave != oldWidget.isSave) {
+      if (widget.isSave) {
+        _resetSlider();
+      }
+    }
+  }
+
+  void _resetSlider() {
+    setState(() {
+      currentSliderValue = 2.5;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            widget.title,
-            style: GoogleFonts.nunito(
-                textStyle: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: Color.fromRGBO(35, 35, 43, 1),
-            )),
-          ),
+          Text(widget.title, style: theme.textTheme.headlineLarge),
           const SizedBox(height: 20),
           Container(
             decoration: BoxDecoration(
@@ -61,20 +75,17 @@ class _BaseSliderState extends State<BaseSlider> {
                   height: 50,
                   child: SfSliderTheme(
                     data: SfSliderThemeData(
-                      disabledInactiveTrackColor: widget.isEmotionSelected
-                          ? const Color.fromRGBO(255, 135, 2, 1)
-                          : const Color.fromRGBO(225, 221, 216, 1),
-                      disabledActiveTrackColor: widget.isEmotionSelected
-                          ? const Color.fromRGBO(255, 135, 2, 1)
-                          : const Color.fromRGBO(225, 221, 216, 1),
+                      disabledInactiveTrackColor:
+                          widget.isEmotionSelected ? theme.primaryColor : const Color.fromRGBO(225, 221, 216, 1),
+                      disabledActiveTrackColor:
+                          widget.isEmotionSelected ? theme.primaryColor : const Color.fromRGBO(225, 221, 216, 1),
                       inactiveTrackHeight: 6,
                       activeTrackHeight: 6,
                       thumbRadius: 12,
                       tickOffset: const Offset(0, -22),
                       tickSize: const Size(2, 8),
-                      activeTickColor: widget.isEmotionSelected
-                          ? const Color.fromRGBO(255, 135, 2, 1)
-                          : const Color.fromRGBO(225, 221, 216, 1),
+                      activeTickColor:
+                          widget.isEmotionSelected ? theme.primaryColor : const Color.fromRGBO(225, 221, 216, 1),
                     ),
                     child: SfSlider(
                       key: UniqueKey(),
@@ -110,16 +121,15 @@ class _BaseSliderState extends State<BaseSlider> {
                             height: 12,
                             decoration: BoxDecoration(
                               color: widget.isEmotionSelected
-                                  ? const Color.fromRGBO(255, 135, 2, 1)
+                                  ? theme.primaryColor
                                   : const Color.fromRGBO(225, 221, 216, 1),
                               shape: BoxShape.circle,
                             ),
                           ),
                         ),
                       ),
-                      activeColor: widget.isEmotionSelected
-                          ? const Color.fromRGBO(255, 135, 2, 1)
-                          : const Color.fromRGBO(225, 221, 216, 1),
+                      activeColor:
+                          widget.isEmotionSelected ? theme.primaryColor : const Color.fromRGBO(225, 221, 216, 1),
                       inactiveColor: const Color.fromRGBO(225, 221, 216, 1),
                     ),
                   ),
@@ -129,26 +139,8 @@ class _BaseSliderState extends State<BaseSlider> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        widget.firstValue,
-                        style: GoogleFonts.nunito(
-                          textStyle: const TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 14,
-                            color: Color.fromRGBO(145, 158, 171, 1),
-                          ),
-                        ),
-                      ),
-                      Text(
-                        widget.secondValue,
-                        style: GoogleFonts.nunito(
-                          textStyle: const TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 14,
-                            color: Color.fromRGBO(145, 158, 171, 1),
-                          ),
-                        ),
-                      ),
+                      Text(widget.firstValue, style: theme.textTheme.labelSmall),
+                      Text(widget.secondValue, style: theme.textTheme.labelSmall),
                     ],
                   ),
                 ),

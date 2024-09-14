@@ -33,19 +33,18 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final config = CalendarConfig.getConfig(
       monthLabels: monthLabels,
       weekDayLabels: weekDayLabels,
       selectedDates: selectedDates,
     );
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(255, 253, 252, 1),
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(255, 253, 252, 1),
         leading: Padding(
           padding: const EdgeInsets.only(left: 5),
           child: IconButton(
-            icon: SvgPicture.asset('assets/icons/close.svg', color: const Color.fromRGBO(188, 188, 191, 1)),
+            icon: SvgPicture.asset('assets/icons/close.svg', color: theme.disabledColor),
             onPressed: () {
               Navigator.pop(context);
             },
@@ -59,15 +58,7 @@ class _CalendarPageState extends State<CalendarPage> {
               });
               _pageController.jumpToPage(DateTime.now().day);
             },
-            child: Text(
-              'Сегодня',
-              style: GoogleFonts.nunito(
-                  textStyle: const TextStyle(
-                color: Color.fromRGBO(188, 188, 191, 1),
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              )),
-            ),
+            child: Text('Сегодня', style: theme.textTheme.titleLarge),
           ),
           const SizedBox(width: 10),
         ],
