@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:test_application/data/shared_preferences.dart';
+import 'package:test_application/models/emotion_data.dart';
+
 import 'package:test_application/pages/calendar/calendar.dart';
 import 'package:test_application/pages/calendar/view/calendar_page.dart';
 import 'package:test_application/pages/home/components/components.dart';
@@ -21,7 +23,13 @@ class _HomePageState extends State<HomePage> {
   bool _isEmotionSelected = false;
   bool _isNotesTextFieldEmpty = true;
   bool _isSave = false;
-  int _selectedIndex = 0; // Индекс выбранной вкладки
+  int _selectedIndex = 0;
+
+  final List<String> _emotions = [];
+  final List<String?> _subEmotions = [];
+  double _stressLevel = 0;
+  double _selfLevel = 0;
+  String _notes = '';
 
   void _updateDateTime() {
     setState(() {
@@ -64,12 +72,33 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _onSavePressed() async {
+    final data = EmotionData(
+      _subEmotions,
+      emotions: _emotions,
+      stressLevel: _stressLevel,
+      selfLevel: _selfLevel,
+      notes: _notes,
+      dateTime: _currentDateTime,
+    );
+
+    await PreferencesUtil.saveEmotionData(data);
+    setState(() {
+      _isSave = true;
+    });
+    _showSaveConfirmationDialog();
+    _resetAllFields();
+  }
+
   void _resetAllFields() {
     setState(() {
       _isEmotionSelected = false;
       _isNotesTextFieldEmpty = true;
-
-      _isSave = true;
+      _emotions.clear();
+      _subEmotions.clear();
+      _stressLevel = 0;
+      _selfLevel = 0;
+      _notes = '';
     });
 
     Future.delayed(const Duration(milliseconds: 100), () {
@@ -77,12 +106,6 @@ class _HomePageState extends State<HomePage> {
         _isSave = false;
       });
     });
-  }
-
-  void _onSavePressed() {
-    _isSave = true;
-    _showSaveConfirmationDialog();
-    _resetAllFields();
   }
 
   void _onEmotionSelected(bool isSelected) {
@@ -152,6 +175,11 @@ class _HomePageState extends State<HomePage> {
                         secondValue: 'Высокий',
                         isEmotionSelected: _isEmotionSelected,
                         isSave: _isSave,
+                        onValueChanged: (value) {
+                          setState(() {
+                            _stressLevel = value;
+                          });
+                        },
                       ),
                       BaseSlider(
                         title: 'Самооценка',
@@ -159,8 +187,21 @@ class _HomePageState extends State<HomePage> {
                         secondValue: 'Уверенность',
                         isEmotionSelected: _isEmotionSelected,
                         isSave: _isSave,
+                        onValueChanged: (value) {
+                          setState(() {
+                            _selfLevel = value;
+                          });
+                        },
                       ),
-                      NotesTextField(onTextChange: _onNotesTextChanged, isSave: _isSave),
+                      NotesTextField(
+                        onTextChange: _onNotesTextChanged,
+                        onTextChanged: (text) {
+                          setState(() {
+                            _notes = text;
+                          });
+                        },
+                        isSave: _isSave,
+                      ),
                       const SizedBox(height: 36),
                       SaveButton(
                         isEmotionSelected: _isEmotionSelected,
@@ -171,7 +212,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-                const StatisticPage(),
+                StatisticPage(isSave: _isSave),
               ],
             ),
           ),

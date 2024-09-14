@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
@@ -11,6 +10,7 @@ class BaseSlider extends StatefulWidget {
     required this.title,
     required this.isEmotionSelected,
     required this.isSave,
+    required this.onValueChanged,
   });
 
   final bool isEmotionSelected;
@@ -18,6 +18,7 @@ class BaseSlider extends StatefulWidget {
   final String secondValue;
   final String title;
   final bool isSave;
+  final ValueChanged<double> onValueChanged;
 
   @override
   State<BaseSlider> createState() => _BaseSliderState();
@@ -29,10 +30,8 @@ class _BaseSliderState extends State<BaseSlider> {
   @override
   void didUpdateWidget(BaseSlider oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.isSave != oldWidget.isSave) {
-      if (widget.isSave) {
-        _resetSlider();
-      }
+    if (widget.isSave != oldWidget.isSave && widget.isSave) {
+      _resetSlider();
     }
   }
 
@@ -99,6 +98,7 @@ class _BaseSliderState extends State<BaseSlider> {
                           ? (dynamic value) {
                               setState(() {
                                 currentSliderValue = value;
+                                widget.onValueChanged(value); // Передаем значение обратно
                               });
                             }
                           : null,

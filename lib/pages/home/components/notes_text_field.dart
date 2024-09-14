@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class NotesTextField extends StatefulWidget {
-  const NotesTextField({super.key, required this.onTextChange, required this.isSave});
+  const NotesTextField({
+    super.key,
+    required this.onTextChange,
+    required this.onTextChanged,
+    required this.isSave,
+  });
 
   final ValueChanged<bool> onTextChange;
+  final ValueChanged<String> onTextChanged; // Добавлено
   final bool isSave;
 
   @override
@@ -18,7 +23,9 @@ class _NotesTextFieldState extends State<NotesTextField> {
   void initState() {
     super.initState();
     _controller.addListener(() {
-      widget.onTextChange(_controller.text.isEmpty);
+      final text = _controller.text;
+      widget.onTextChange(text.isEmpty);
+      widget.onTextChanged(text); // Передача текста в родительский виджет
     });
   }
 
@@ -61,7 +68,7 @@ class _NotesTextFieldState extends State<NotesTextField> {
             child: TextField(
               textInputAction: TextInputAction.done,
               controller: _controller,
-              cursorColor: Colors.black,
+              cursorColor: theme.primaryColor,
               style: theme.textTheme.bodyMedium,
               minLines: 4,
               maxLines: 8,
@@ -72,13 +79,15 @@ class _NotesTextFieldState extends State<NotesTextField> {
                 ),
                 filled: true,
                 enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.white)),
-                focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(color: Colors.white),
                 ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: theme.primaryColor),
+                ),
                 hintText: 'Введите заметку',
-                hintStyle: theme.textTheme.labelSmall,
+                hintStyle: theme.textTheme.bodySmall,
               ),
             ),
           ),
